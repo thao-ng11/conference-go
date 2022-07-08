@@ -17,4 +17,5 @@ urlpatterns = [
     ),
     path("locations/", api_list_locations, name="api_list_locations"),
     path("locations/<int:pk>/", api_show_location, name="api_show_location"),
+
 ]
