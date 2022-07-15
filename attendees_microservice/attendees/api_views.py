@@ -4,6 +4,7 @@ from .models import Attendee
 from .models import ConferenceVO
 import json
 from common.json import ModelEncoder
+from attendees.models import AccountVO
 
 class ConferenceVODetailEncoder(ModelEncoder):
     model = ConferenceVO
@@ -23,6 +24,15 @@ class AttendeeDetailEncoder(ModelEncoder):
         "company_name",
         "created",
     ]
+    encoders = {
+        "conference": ConferenceVODetailEncoder(),
+    }
+    def get_extra_data(self, o):
+        count = AccountVO.objects.filter(email=o.email).count()
+        return {"has_account": count > 0} 
+        # Get the count of AccountVO objects with email equal to o.email
+        # Return a dictionary with "has_account": True if count > 0
+        # Otherwise, return a dictionary with "has_account": False
 
 
 
@@ -38,7 +48,7 @@ def api_list_attendees(request, conference_vo_id=None):
     else:
         content = json.loads(request.body)
         try:
-            conference_href = content["conference"]
+            conference_href = f"/api/conferences/{conference_vo_id}/"
             conference = ConferenceVO.objects.get(import_href=conference_href)
             content["conference"] = conference
         except ConferenceVO.DoesNotExist:
